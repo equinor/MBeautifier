@@ -179,11 +179,9 @@ classdef MBeautify
                 lineAfterSelection = [lineAfterSelection(1) + 1, 1, lineAfterSelection(1) + 1, Inf];
                 currentEditorPage.Selection = lineAfterSelection;
                 lineAfterText = currentEditorPage.SelectedText;
-                
             end
             
             endReached = isequal(lineAfterSelection(1), currentSelection(1));
-            
             expandedSelection = [expandedSelection(1), 1, lineAfterSelection(3), Inf];
             
             if isequal(currentSelection(1), 1)
@@ -200,7 +198,6 @@ classdef MBeautify
                 codeAfterSelection = [expandedSelection(3), 1, Inf, Inf];
                 currentEditorPage.Selection = codeAfterSelection;
                 codeAfter = currentEditorPage.SelectedText;
-                
             end
             
             currentEditorPage.Selection = expandedSelection;
@@ -282,13 +279,11 @@ classdef MBeautify
             
             MBeautyShortcuts.createShortcut(mode);
         end
-        
     end
     
     %% Private helpers
     
     methods (Static = true, Access = private)
-        
         function indentPage(editorPage, configuration)
             indentationStrategy = configuration.specialRule('Indentation_Strategy').Value;
             originalPreference = com.mathworks.services.Prefs.getStringPref('EditorMFunctionIndentType');
@@ -332,7 +327,7 @@ classdef MBeautify
                 neededIndentation = [neededIndentation, regexIndentCharacter];
             end
             
-            newLine = sprintf('\n');
+            newLine = MBeautifier.Constants.NewLine;
             textArray = regexp(editorPage.Text, newLine, 'split');
             
             skipIndentation = strcmpi(indentationCharacter, 'white-space') && indentationCount == 4;
@@ -398,6 +393,5 @@ classdef MBeautify
                 setappdata(0, 'MBeautifier_ConfigurationObject', configuration);
             end
         end
-        
     end
 end
