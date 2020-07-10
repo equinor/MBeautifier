@@ -367,9 +367,15 @@ classdef MBeautify
             
             editorPage.Text = strjoin(textArray, '\n');
         end
-        
-        function configuration = getConfiguration()
-            [parent, file, ext] = fileparts(MBeautify.RulesXMLFileFull);
+    end
+    methods(Static = true)
+        function configuration = getConfiguration(filePath)
+            if ~exist('filePath','var') || isempty(filePath)
+                filePath = MBeautify.RulesXMLFileFull;
+            end
+            filePath = char(System.IO.Path.GetFullPath(filePath));
+            
+            [parent, file, ext] = fileparts(filePath);
             path = java.nio.file.Paths.get(parent, [file, ext]);
             
             if ~path.toFile.exists()
@@ -388,7 +394,7 @@ classdef MBeautify
                 configuration = getappdata(0, 'MBeautifier_ConfigurationObject');
             end
             if isempty(configuration)
-                configuration = MBeautifier.Configuration.Configuration.fromFile(MBeautify.RulesXMLFileFull);
+                configuration = MBeautifier.Configuration.Configuration.fromFile(filePath);
                 setappdata(0, 'MBeautifier_ConfigurationChecksum', currentChecksum);
                 setappdata(0, 'MBeautifier_ConfigurationObject', configuration);
             end
