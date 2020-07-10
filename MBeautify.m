@@ -65,10 +65,7 @@ classdef MBeautify
             fclose(fid);
         end
         
-        function formatFile(file, outFile)
-            % Format file in editor
-            % function formatFile(file, outFile)
-            %
+        function formatFile(file, outFile, conf)
             % Formats the file specified in the first argument. The file is opened in the Matlab Editor. If the second
             % argument is also specified, the formatted source is saved to this file and it is closed if it wasn't already
             % open in the Editor. Otherwise the formatted input file remains opened in the Matlab Editor.
@@ -76,11 +73,16 @@ classdef MBeautify
             if ~exist(file, 'file')
                 return;
             end
+
+            if ~exist('conf','var')
+                conf = char.empty;
+            end            
             
             isOpen = matlab.desktop.editor.isOpen(file);
             document = matlab.desktop.editor.openDocument(file);
+            
             % Format the code
-            configuration = MBeautify.getConfiguration();
+            configuration = MBeautify.getConfiguration(conf);
             formatter = MBeautifier.MFormatter(configuration);
             document.Text = formatter.performFormatting(document.Text);
             
@@ -98,9 +100,9 @@ classdef MBeautify
             end
         end
         
-        function formatFiles(directory, fileFilter, recurse, editor)
+        function formatFiles(directory, fileFilter, recurse, editor, conf)
             % Format multiple files in-place. Supports file type filtering and subfolder recursion
-            % function formatFiles(directory, fileFilter, recurse)
+            % function formatFiles(directory, fileFilter, recurse, editor, conf)
             %
             % Formats the files in-place (files are overwritten) in the
             % specified directory, collected by the specified filter and optionally recurse subfolders.
@@ -109,6 +111,7 @@ classdef MBeautify
             %
             % Recurse defaults to false. Set true to recurse subfolders of directory.
             % Editor defaults to true.  Set to false to format files outside the editor.
+            % Conf is the configuration file. Defaults to char.empty.
             
             if nargin < 2
                 fileFilter = '*.m';
@@ -117,13 +120,23 @@ classdef MBeautify
             if ~exist('recurse','var') || isempty(recurse)
                 recurse = false;
             end
-            
+
             if ~exist('editor','var') || isempty(editor)
                 editor = true;
             end
             
+            if ~exist('conf','var')
+                conf = char.empty;
+            end
+            
             if recurse
-                directory = fullfile(directory, '**');
+                contents = dir(directory);
+                for k = numel(contents):-1:1
+                    if contents(k).isdir && ~startsWith(contents(k).name,'.')
+                        % Recursive call in subfolder
+                        MBeautify.formatFiles(fullfile(contents(k).folder, contents(k).name), fileFilter, recurse, conf);
+                    end
+                end
             end
             
             files = dir(fullfile(directory, fileFilter));
@@ -131,9 +144,9 @@ classdef MBeautify
             for iF = 1:numel(files)
                 file = fullfile(files(iF).folder, files(iF).name);
                 if editor
-                    MBeautify.formatFile(file, file);
+                    MBeautify.formatFile(file, file, conf);
                 else
-                    MBeautify.formatFileNoEditor(file, file);
+                    MBeautify.formatFileNoEditor(file, file, conf);
                 end
             end
         end
@@ -263,12 +276,16 @@ classdef MBeautify
             end
         end
         
-        function formatCurrentEditorPage(doSave)
+        function formatCurrentEditorPage(doSave,conf)
             % Performs formatting on the currently active Matlab Editor page.
             % function formatCurrentEditorPage(doSave)
             %
             % Optionally saves the file (if it is possible) and it is forced on the first argument (true). By default
             % the file is not saved.
+            
+            if ~exist('conf','var')
+                conf = char.empty;
+            end
             
             currentEditorPage = matlab.desktop.editor.getActive();
             if isempty(currentEditorPage)
@@ -282,7 +299,7 @@ classdef MBeautify
             selectedPosition = currentEditorPage.Selection;
             
             % Format the code
-            configuration = MBeautify.getConfiguration();
+            configuration = MBeautify.getConfiguration(conf);
             formatter = MBeautifier.MFormatter(configuration);
             currentEditorPage.Text = formatter.performFormatting(currentEditorPage.Text);
             
@@ -416,13 +433,14 @@ classdef MBeautify
             if ~exist('filePath','var') || isempty(filePath)
                 filePath = MBeautify.RulesXMLFileFull;
             end
+            
             filePath = char(System.IO.Path.GetFullPath(filePath));
             
             [parent, file, ext] = fileparts(filePath);
             path = java.nio.file.Paths.get(parent, [file, ext]);
             
             if ~path.toFile.exists()
-                error('MBeautifier:Configuration:ConfigurationFileDoesNotExist', 'The configuration XML file is missing!');
+                error('MBeautifier:Configuration:ConfigurationFileDoesNotExist', 'The configuration XML file %s is missing!',filePath);
             end
             
             bytes = java.nio.file.Files.readAllBytes(path);
