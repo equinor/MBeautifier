@@ -89,8 +89,15 @@ classdef MBeautify
         end
         
         function formatFiles(directory, fileFilter, recurse)
-            % Formats the files in-place (files are overwritten) in the specified directory, collected by the specified filter.
-            % The file filter is a wildcard expression used by the dir command.
+            % Format multiple files. Supports file type filtering and subfolder recursion
+            % function formatFiles(directory, fileFilter, recurse)
+            %
+            % Formats the files in-place (files are overwritten) in the
+            % specified directory, collected by the specified filter and optionally recurse subfolders.
+            % The file filter is a wildcard expression used by the dir
+            % command. Defaults to '*.m'
+            %
+            % Recurse defaults to false. Set true to recurse subfolders of directory.
             
             if ~exist('fileFilter','var') || isempty(fileFilter)
                 fileFilter = '*.m';
@@ -104,6 +111,7 @@ classdef MBeautify
                 contents = dir(directory);
                 for k = numel(contents):-1:1
                     if contents(k).isdir && ~startsWith(contents(k).name,'.')
+                        % Recursive call in subfolder
                         MBeautify.formatFiles(fullfile(contents(k).folder, contents(k).name), fileFilter, recurse);
                     end
                 end
@@ -171,11 +179,9 @@ classdef MBeautify
                 lineAfterSelection = [lineAfterSelection(1) + 1, 1, lineAfterSelection(1) + 1, Inf];
                 currentEditorPage.Selection = lineAfterSelection;
                 lineAfterText = currentEditorPage.SelectedText;
-                
             end
             
             endReached = isequal(lineAfterSelection(1), currentSelection(1));
-            
             expandedSelection = [expandedSelection(1), 1, lineAfterSelection(3), Inf];
             
             if isequal(currentSelection(1), 1)
@@ -192,7 +198,6 @@ classdef MBeautify
                 codeAfterSelection = [expandedSelection(3), 1, Inf, Inf];
                 currentEditorPage.Selection = codeAfterSelection;
                 codeAfter = currentEditorPage.SelectedText;
-                
             end
             
             currentEditorPage.Selection = expandedSelection;
@@ -279,7 +284,6 @@ classdef MBeautify
     %% Private helpers
     
     methods (Static = true, Access = private)
-        
         function indentPage(editorPage, configuration)
             indentationStrategy = configuration.specialRule('Indentation_Strategy').Value;
             originalPreference = com.mathworks.services.Prefs.getStringPref('EditorMFunctionIndentType');
@@ -323,7 +327,7 @@ classdef MBeautify
                 neededIndentation = [neededIndentation, regexIndentCharacter];
             end
             
-            newLine = sprintf('\n');
+            newLine = MBeautifier.Constants.NewLine;
             textArray = regexp(editorPage.Text, newLine, 'split');
             
             skipIndentation = strcmpi(indentationCharacter, 'white-space') && indentationCount == 4;
