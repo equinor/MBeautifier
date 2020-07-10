@@ -81,6 +81,7 @@ classdef MBeautify
             %
             % Input conf can be used to load specific style configuration
             % file. Defaults to char.empty
+
             if ~exist(file, 'file')
                 return;
             end
@@ -266,6 +267,10 @@ classdef MBeautify
             % the file is not saved.
             % Input conf can be used to load specific style configuration
             % file. Defaults to char.empty
+            
+            if ~exist('conf','var')
+                conf = char.empty;
+            end
             
             if ~exist('conf','var')
                 conf = char.empty;
