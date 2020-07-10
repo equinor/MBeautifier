@@ -62,17 +62,23 @@ classdef MBeautify
             fclose(fid);
         end
         
-        function formatFile(file, outFile)
+        function formatFile(file, outFile, conf)
             % Formats the file specified in the first argument. The file is opened in the Matlab Editor. If the second
             % argument is also specified, the formatted source is saved to this file. Otherwise the formatted input
             % file remains opened in the Matlab Editor. The input and the output file can be the same.
+            
             if ~exist(file, 'file')
                 return;
             end
             
+            if ~exist('conf','var')
+                conf = char.empty;
+            end
+            
             document = matlab.desktop.editor.openDocument(file);
+            
             % Format the code
-            configuration = MBeautify.getConfiguration();
+            configuration = MBeautify.getConfiguration(conf);
             formatter = MBeautifier.MFormatter(configuration);
             document.Text = formatter.performFormatting(document.Text);
             
@@ -88,7 +94,7 @@ classdef MBeautify
             end
         end
         
-        function formatFiles(directory, fileFilter, recurse)
+        function formatFiles(directory, fileFilter, recurse, conf)
             % Format multiple files. Supports file type filtering and subfolder recursion
             % function formatFiles(directory, fileFilter, recurse)
             %
@@ -107,12 +113,16 @@ classdef MBeautify
                 recurse = false;
             end
             
+            if ~exist('conf','var')
+                conf = char.empty;
+            end
+            
             if recurse
                 contents = dir(directory);
                 for k = numel(contents):-1:1
                     if contents(k).isdir && ~startsWith(contents(k).name,'.')
                         % Recursive call in subfolder
-                        MBeautify.formatFiles(fullfile(contents(k).folder, contents(k).name), fileFilter, recurse);
+                        MBeautify.formatFiles(fullfile(contents(k).folder, contents(k).name), fileFilter, recurse, conf);
                     end
                 end
             end
@@ -121,7 +131,7 @@ classdef MBeautify
             
             for iF = 1:numel(files)
                 file = fullfile(files(iF).folder, files(iF).name);
-                MBeautify.formatFile(file, file);
+                MBeautify.formatFile(file, file, conf);
             end
         end
         
@@ -228,10 +238,14 @@ classdef MBeautify
             end
         end
         
-        function formatCurrentEditorPage(doSave)
+        function formatCurrentEditorPage(doSave,conf)
             % Performs formatting on the currently active Matlab Editor page.
             % Optionally saves the file (if it is possible) and it is forced on the first argument (true). By default
             % the file is not saved.
+            
+            if ~exist('conf','var')
+                conf = char.empty;
+            end
             
             currentEditorPage = matlab.desktop.editor.getActive();
             if isempty(currentEditorPage)
@@ -245,7 +259,7 @@ classdef MBeautify
             selectedPosition = currentEditorPage.Selection;
             
             % Format the code
-            configuration = MBeautify.getConfiguration();
+            configuration = MBeautify.getConfiguration(conf);
             formatter = MBeautifier.MFormatter(configuration);
             currentEditorPage.Text = formatter.performFormatting(currentEditorPage.Text);
             
@@ -373,13 +387,14 @@ classdef MBeautify
             if ~exist('filePath','var') || isempty(filePath)
                 filePath = MBeautify.RulesXMLFileFull;
             end
+            
             filePath = char(System.IO.Path.GetFullPath(filePath));
             
             [parent, file, ext] = fileparts(filePath);
             path = java.nio.file.Paths.get(parent, [file, ext]);
             
             if ~path.toFile.exists()
-                error('MBeautifier:Configuration:ConfigurationFileDoesNotExist', 'The configuration XML file is missing!');
+                error('MBeautifier:Configuration:ConfigurationFileDoesNotExist', 'The configuration XML file %s is missing!',filePath);
             end
             
             bytes = java.nio.file.Files.readAllBytes(path);
