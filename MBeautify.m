@@ -29,10 +29,9 @@ classdef MBeautify
     %% Public API
     
     methods (Static = true)
-        
-        function formatFileNoEditor(file, outFile)
-            % Format file outside of editor
-            % function formatFileNoEditor(file, outFile)
+        function formatFileNoEditor(file, outFile, conf)
+            % Format file without using editor
+            % function formatFileNoEditor(file, outFile, conf)
             %
             % Formats the file specified in the first argument. If the
             % second argument is also specified, the formatted source is
@@ -40,14 +39,21 @@ classdef MBeautify
             % same, in which case the format operation is carried out
             % in-place.
             %
+            % Input conf can be used to load specific style configuration
+            % file. Defaults to char.empty
+            
             if ~exist(file, 'file')
                 return;
+            end
+            
+            if ~exist('conf','var') || isempty(conf)
+                conf = char.empty;
             end
             
             text = fileread(file);
             
             % Format the code
-            configuration = MBeautify.getConfiguration();
+            configuration = MBeautify.getConfiguration(conf);
             formatter = MBeautifier.MFormatter(configuration);
             text = formatter.performFormatting(text);
             
@@ -66,10 +72,15 @@ classdef MBeautify
         end
         
         function formatFile(file, outFile, conf)
+            % Format file
+            % function formatFile(file, outFile, conf)
+            %
             % Formats the file specified in the first argument. The file is opened in the Matlab Editor. If the second
             % argument is also specified, the formatted source is saved to this file. Otherwise the formatted input
             % file remains opened in the Matlab Editor. The input and the output file can be the same.
-            
+            %
+            % Input conf can be used to load specific style configuration
+            % file. Defaults to char.empty
             if ~exist(file, 'file')
                 return;
             end
@@ -99,7 +110,7 @@ classdef MBeautify
         
         function formatFiles(directory, fileFilter, recurse, conf)
             % Format multiple files. Supports file type filtering and subfolder recursion
-            % function formatFiles(directory, fileFilter, recurse)
+            % function formatFiles(directory, fileFilter, recurse, conf)
             %
             % Formats the files in-place (files are overwritten) in the
             % specified directory, collected by the specified filter and optionally recurse subfolders.
@@ -107,6 +118,9 @@ classdef MBeautify
             % command. Defaults to '*.m'
             %
             % Recurse defaults to false. Set true to recurse subfolders of directory.
+            %
+            % Input conf can be used to load specific style configuration
+            % file. Defaults to char.empty
             
             if nargin < 2
                 fileFilter = '*.m';
@@ -246,10 +260,12 @@ classdef MBeautify
         
         function formatCurrentEditorPage(doSave,conf)
             % Performs formatting on the currently active Matlab Editor page.
-            % function formatCurrentEditorPage(doSave)
+            % function formatCurrentEditorPage(doSave,conf)
             %
             % Optionally saves the file (if it is possible) and it is forced on the first argument (true). By default
             % the file is not saved.
+            % Input conf can be used to load specific style configuration
+            % file. Defaults to char.empty
             
             if ~exist('conf','var')
                 conf = char.empty;
@@ -356,8 +372,7 @@ classdef MBeautify
                 neededIndentation = [neededIndentation, regexIndentCharacter];
             end
             
-            newLine = MBeautifier.Constants.NewLine;
-            textArray = regexp(editorPage.Text, newLine, 'split');
+            textArray = regexp(editorPage.Text, MBeautifier.Constants.NewLine, 'split');
             
             skipIndentation = strcmpi(indentationCharacter, 'white-space') && indentationCount == 4;
             
@@ -399,6 +414,13 @@ classdef MBeautify
     end
     methods(Static = true)
         function configuration = getConfiguration(filePath)
+            % Load formatting configuration from file
+            % function configuration = getConfiguration(filePath)
+            %
+            % Specify path to configuration file using filePath or use
+            % default
+            %
+            
             if ~exist('filePath','var') || isempty(filePath)
                 filePath = MBeautify.RulesXMLFileFull;
             end

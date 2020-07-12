@@ -69,32 +69,32 @@
       <OperatorPaddingRule>
          <Key>ElementWiseMultiplication</Key>
          <ValueFrom>.*</ValueFrom>
-         <ValueTo> .* </ValueTo>
+         <ValueTo>.*</ValueTo>
       </OperatorPaddingRule>
       <OperatorPaddingRule>
          <Key>Multiplication</Key>
          <ValueFrom>*</ValueFrom>
-         <ValueTo> * </ValueTo>
+         <ValueTo>*</ValueTo>
       </OperatorPaddingRule>
       <OperatorPaddingRule>
          <Key>RightArrayDivision</Key>
          <ValueFrom>./</ValueFrom>
-         <ValueTo> ./ </ValueTo>
+         <ValueTo>./</ValueTo>
       </OperatorPaddingRule>
       <OperatorPaddingRule>
          <Key>LeftArrayDivision</Key>
          <ValueFrom>.\</ValueFrom>
-         <ValueTo> .\ </ValueTo>
+         <ValueTo>.\</ValueTo>
       </OperatorPaddingRule>
       <OperatorPaddingRule>
          <Key>Division</Key>
          <ValueFrom>/</ValueFrom>
-         <ValueTo> / </ValueTo>
+         <ValueTo>/</ValueTo>
       </OperatorPaddingRule>
       <OperatorPaddingRule>
          <Key>LeftDivision</Key>
          <ValueFrom>\</ValueFrom>
-         <ValueTo> \ </ValueTo>
+         <ValueTo>\</ValueTo>
       </OperatorPaddingRule>
       <OperatorPaddingRule>
          <Key>ElementWisePower</Key>
@@ -114,7 +114,7 @@
       <OperatorPaddingRule>
          <Key>Comma</Key>
          <ValueFrom>,</ValueFrom>
-         <ValueTo>, </ValueTo>
+         <ValueTo>,</ValueTo>
       </OperatorPaddingRule>
       <OperatorPaddingRule>
          <Key>SemiColon</Key>
@@ -132,7 +132,6 @@
          <ValueTo>@</ValueTo>
       </OperatorPaddingRule>
    </OperatorPadding>
-
    <KeyworPadding>
       <KeyworPaddingRule>
          <Keyword>case</Keyword>
@@ -147,7 +146,19 @@
          <RightPadding>1</RightPadding>
       </KeyworPaddingRule>
       <KeyworPaddingRule>
+         <Keyword>events</Keyword>
+         <RightPadding>1</RightPadding>
+      </KeyworPaddingRule>
+      <KeyworPaddingRule>
          <Keyword>for</Keyword>
+         <RightPadding>1</RightPadding>
+      </KeyworPaddingRule>
+      <KeyworPaddingRule>
+         <Keyword>if</Keyword>
+         <RightPadding>1</RightPadding>
+      </KeyworPaddingRule>
+      <KeyworPaddingRule>
+         <Keyword>methods</Keyword>
          <RightPadding>1</RightPadding>
       </KeyworPaddingRule>
       <KeyworPaddingRule>
@@ -155,7 +166,7 @@
          <RightPadding>1</RightPadding>
       </KeyworPaddingRule>
       <KeyworPaddingRule>
-         <Keyword>if</Keyword>
+         <Keyword>properties</Keyword>
          <RightPadding>1</RightPadding>
       </KeyworPaddingRule>
       <KeyworPaddingRule>
@@ -166,21 +177,60 @@
          <Keyword>while</Keyword>
          <RightPadding>1</RightPadding>
       </KeyworPaddingRule>
-      <KeyworPaddingRule>
-         <Keyword>properties</Keyword>
-         <RightPadding>1</RightPadding>
-      </KeyworPaddingRule>
-      <KeyworPaddingRule>
-         <Keyword>methods</Keyword>
-         <RightPadding>1</RightPadding>
-      </KeyworPaddingRule>
-      <KeyworPaddingRule>
-         <Keyword>events</Keyword>
-         <RightPadding>1</RightPadding>
-      </KeyworPaddingRule>
    </KeyworPadding>
-
    <SpecialRules>
+      <SpecialRule>
+         <Key>AddCommasToCellArrays</Key>
+         <Value>0</Value>
+      </SpecialRule>
+      <SpecialRule>
+         <Key>AddCommasToMatrices</Key>
+         <Value>0</Value>
+      </SpecialRule>
+      <SpecialRule>
+         <Key>AllowMultipleStatementsPerLine</Key>
+         <Value>0</Value>
+      </SpecialRule>
+      <SpecialRule>
+         <Key>CellArrayIndexing_ArithmeticOperatorPadding</Key>
+         <Value>0</Value>
+      </SpecialRule>
+      <SpecialRule>
+         <Key>EndingNewlineCount</Key>
+         <Value>0</Value>
+      </SpecialRule>
+      <SpecialRule>
+         <Key>Indentation_Strategy</Key>
+         <Value>NestedFunctions</Value>
+      </SpecialRule>
+      <SpecialRule>
+         <Key>Indentation_TrimBlankLines</Key>
+         <Value>1</Value>
+      </SpecialRule>
+      <SpecialRule>
+         <Key>IndentationCharacter</Key>
+         <Value>white-space</Value>
+      </SpecialRule>
+      <SpecialRule>
+         <Key>IndentationCount</Key>
+         <Value>4</Value>
+      </SpecialRule>
+      <SpecialRule>
+         <Key>InlineContinousLines</Key>
+         <Value>0</Value>
+      </SpecialRule>
+      <SpecialRule>
+         <Key>InlineContinousLinesInCurlyBracket</Key>
+         <Value>0</Value>
+      </SpecialRule>
+      <SpecialRule>
+         <Key>InlineContinousLinesInMatrixes</Key>
+         <Value>0</Value>
+      </SpecialRule>
+      <SpecialRule>
+         <Key>MatrixIndexing_ArithmeticOperatorPadding</Key>
+         <Value>0</Value>
+      </SpecialRule>
       <SpecialRule>
          <Key>MaximalNewLines</Key>
          <Value>2</Value>
@@ -193,61 +243,9 @@
          <Key>SectionTrailingNewlineCount</Key>
          <Value>-1</Value>
       </SpecialRule>
-	  <SpecialRule>
+      <SpecialRule>
          <Key>StartingNewlineCount</Key>
          <Value>0</Value>
-      </SpecialRule>
-	  <SpecialRule>
-         <Key>EndingNewlineCount</Key>
-         <Value>1</Value>
-      </SpecialRule>
-      <SpecialRule>
-         <Key>AddCommasToMatrices</Key>
-         <Value>1</Value>
-      </SpecialRule>
-      <SpecialRule>
-         <Key>AddCommasToCellArrays</Key>
-         <Value>1</Value>
-      </SpecialRule>
-      <SpecialRule>
-         <Key>CellArrayIndexing_ArithmeticOperatorPadding</Key>
-         <Value>0</Value>
-      </SpecialRule>
-      <SpecialRule>
-         <Key>MatrixIndexing_ArithmeticOperatorPadding</Key>
-         <Value>0</Value>
-      </SpecialRule>
-      <SpecialRule>
-         <Key>AllowMultipleStatementsPerLine</Key>
-         <Value>0</Value>
-      </SpecialRule>
-      <SpecialRule>
-         <Key>InlineContinousLines</Key>
-         <Value>0</Value>
-      </SpecialRule>
-      <SpecialRule>
-         <Key>InlineContinousLinesInMatrixes</Key>
-         <Value>0</Value>
-      </SpecialRule>
-      <SpecialRule>
-         <Key>InlineContinousLinesInCurlyBracket</Key>
-         <Value>0</Value>
-      </SpecialRule>
-	  <SpecialRule>
-         <Key>IndentationCharacter</Key>
-         <Value>white-space</Value>
-      </SpecialRule>
-      <SpecialRule>
-         <Key>IndentationCount</Key>
-         <Value>4</Value>
-      </SpecialRule>
-	  <SpecialRule>
-         <Key>Indentation_TrimBlankLines</Key>
-         <Value>1</Value>
-      </SpecialRule>
-      <SpecialRule>
-         <Key>Indentation_Strategy</Key>
-         <Value>NestedFunctions</Value>
       </SpecialRule>
    </SpecialRules>
 </MBeautifyRuleConfiguration>
