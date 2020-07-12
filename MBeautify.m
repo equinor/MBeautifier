@@ -278,10 +278,12 @@ classdef MBeautify
         
         function formatCurrentEditorPage(doSave,conf)
             % Performs formatting on the currently active Matlab Editor page.
-            % function formatCurrentEditorPage(doSave)
+            % function formatCurrentEditorPage(doSave,conf)
             %
             % Optionally saves the file (if it is possible) and it is forced on the first argument (true). By default
             % the file is not saved.
+            % Input conf can be used to load specific style configuration
+            % file. Defaults to char.empty
             
             if ~exist('conf','var')
                 conf = char.empty;
@@ -430,6 +432,13 @@ classdef MBeautify
     end
     methods(Static = true)
         function configuration = getConfiguration(filePath)
+            % Load formatting configuration from file
+            % function configuration = getConfiguration(filePath)
+            %
+            % Specify path to configuration file using filePath or use
+            % default
+            %
+            
             if ~exist('filePath','var') || isempty(filePath)
                 filePath = MBeautify.RulesXMLFileFull;
             end
