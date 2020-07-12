@@ -272,10 +272,6 @@ classdef MBeautify
                 conf = char.empty;
             end
             
-            if ~exist('conf','var')
-                conf = char.empty;
-            end
-            
             currentEditorPage = matlab.desktop.editor.getActive();
             if isempty(currentEditorPage)
                 return;
@@ -377,8 +373,7 @@ classdef MBeautify
                 neededIndentation = [neededIndentation, regexIndentCharacter];
             end
             
-            newLine = MBeautifier.Constants.NewLine;
-            textArray = regexp(editorPage.Text, newLine, 'split');
+            textArray = regexp(editorPage.Text, MBeautifier.Constants.NewLine, 'split');
             
             skipIndentation = strcmpi(indentationCharacter, 'white-space') && indentationCount == 4;
             
