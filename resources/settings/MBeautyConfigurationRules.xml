@@ -205,7 +205,7 @@
       </SpecialRule>
       <SpecialRule>
          <Key>Indentation_TrimBlankLines</Key>
-         <Value>1</Value>
+         <Value>0</Value>
       </SpecialRule>
       <SpecialRule>
          <Key>IndentationCharacter</Key>
