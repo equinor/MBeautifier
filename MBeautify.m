@@ -363,7 +363,8 @@ classdef MBeautify
                 neededIndentation = [neededIndentation, regexIndentCharacter];
             end
             
-            textArray = regexp(editorPage.Text, MBeautifier.Constants.NewLine, 'split');
+            newLine = MBeautifier.Constants.NewLine;
+            textArray = regexp(editorPage.Text, newLine, 'split');
             
             skipIndentation = strcmpi(indentationCharacter, 'white-space') && indentationCount == 4;
             
