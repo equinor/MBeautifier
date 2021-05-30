@@ -6,7 +6,8 @@ classdef MIndenter < handle
         Delimiters = {' ', '\f', '\n', '\r', '\t', '\v', ...
             ','};
         KeywordsIncrease = {'function', 'classdef', 'properties', ...
-            'methods', 'if', 'for', 'parfor', 'switch', 'try', 'while'};
+            'methods', 'if', 'for', 'parfor', 'switch', 'try', 'while', ...
+            'arguments', 'enumeration'};
         KeywordsSandwich = {'else', 'elseif', 'case', 'otherwise', ...
             'catch'};
         KeywordsDecrease = {'end', 'end;'};
@@ -55,7 +56,8 @@ classdef MIndenter < handle
             stack = {};
             
             % start indenting
-            lines = splitlines(source);
+            newLine = MBeautifier.Constants.NewLine;
+            lines = regexp(source, newLine, 'split');
             for linect = 1:numel(lines)
                 % layer of indentation (current line)
                 layer = layerNext;
@@ -64,8 +66,8 @@ classdef MIndenter < handle
                 lines{linect} = strtrim(lines{linect});
                 
                 % split line in words
-                words = split(lines{linect}, obj.Delimiters);
-                
+                pattern = ['[', obj.joinString(obj.Delimiters, '|'), ']'];
+                words = regexp(lines{linect}, pattern, 'split');
                 % ignore empty lines and comments
                 if (~isempty(lines{linect}) && (lines{linect}(1) ~= '%'))
                     % find keywords and adjust indent
@@ -127,6 +129,10 @@ classdef MIndenter < handle
                             end
                             % inline end may alter the indent of the next line
                             layerNext = layerNext - 1;
+                            
+                            if isempty(stack)
+                               continue 
+                            end
                             
                             % correction for function keywords according to
                             % configuration
@@ -191,8 +197,20 @@ classdef MIndenter < handle
                     end
                 end
             end
-            complete = join(lines, MBeautifier.Constants.NewLine);
-            indentedSource = complete{1};
+
+            indentedSource = obj.joinString(lines, MBeautifier.Constants.NewLine);
         end
+    end
+    
+    methods (Access = private, Static)
+        % TODO: Create a public utility function
+       function outStr = joinString(cellStr, delim)
+            outStr = '';
+            for i = 1:numel(cellStr)
+                outStr = [outStr, cellStr{i}, delim];
+            end
+            
+            outStr(end-numel(delim)+1:end) = '';
+        end 
     end
 end
