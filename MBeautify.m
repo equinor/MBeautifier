@@ -108,9 +108,9 @@ classdef MBeautify
             end
         end
         
-        function formatFiles(directory, fileFilter, recurse, conf)
+        function formatFiles(directory, fileFilter, recurse, editor, conf)
             % Format multiple files. Supports file type filtering and subfolder recursion
-            % function formatFiles(directory, fileFilter, recurse, conf)
+            % function formatFiles(directory, fileFilter, recurse, editor, conf)
             %
             % Formats the files in-place (files are overwritten) in the
             % specified directory, collected by the specified filter and optionally recurse subfolders.
@@ -118,7 +118,7 @@ classdef MBeautify
             % command. Defaults to '*.m'
             %
             % Recurse defaults to false. Set true to recurse subfolders of directory.
-            %
+            % Editor defaults to true.  Set to false to format files outside the editor.
             % Input conf can be used to load specific style configuration
             % file. Defaults to char.empty
             
@@ -130,6 +130,10 @@ classdef MBeautify
                 recurse = false;
             end
             
+            if ~exist('editor','var') || isempty(editor)
+                editor = true;
+            end
+
             if ~exist('conf','var')
                 conf = char.empty;
             end
@@ -148,7 +152,11 @@ classdef MBeautify
             
             for iF = 1:numel(files)
                 file = fullfile(files(iF).folder, files(iF).name);
-                MBeautify.formatFile(file, file, conf);
+                if editor
+                    MBeautify.formatFile(file, file);
+                else
+                    MBeautify.formatFileNoEditor(file, file);
+                end
             end
         end
         
@@ -183,43 +191,61 @@ classdef MBeautify
             
             
             % Search for the first empty line before the selection
-            if currentSelection(1) > 1
-                lineBeforePosition = [currentSelection(1) - 1, 1, currentSelection(1) - 1, Inf];
-                
-                currentEditorPage.Selection = lineBeforePosition;
-                lineBeforeText = currentEditorPage.SelectedText;
-                
-                while lineBeforePosition(1) > 1 && ~isempty(strtrim(lineBeforeText))
-                    lineBeforePosition = [lineBeforePosition(1) - 1, 1, lineBeforePosition(1) - 1, Inf];
+            
+            % First test the first line of the selection for emptiness
+            currentEditorPage.Selection = [currentSelection(1), 1,  currentSelection(1), Inf];
+            if (isempty(strtrim(currentEditorPage.SelectedText)))
+                lineBeforePosition = currentSelection(1);
+            else
+                % Otherwise look for the first empty line before
+                if currentSelection(1) > 1
+                    lineBeforePosition = [currentSelection(1) - 1, 1, currentSelection(1) - 1, Inf];
+                    
                     currentEditorPage.Selection = lineBeforePosition;
                     lineBeforeText = currentEditorPage.SelectedText;
+                    
+                    while lineBeforePosition(1) > 1 && ~isempty(strtrim(lineBeforeText))
+                        lineBeforePosition = [lineBeforePosition(1) - 1, 1, lineBeforePosition(1) - 1, Inf];
+                        currentEditorPage.Selection = lineBeforePosition;
+                        lineBeforeText = currentEditorPage.SelectedText;
+                    end
+                else
+                    lineBeforePosition = 1;
                 end
-            else
-                lineBeforePosition = 1;
             end
+            
+            
             expandedSelection = [lineBeforePosition(1), 1, expandedSelection(3), Inf];
             
             % Search for the first empty line after the selection
-            lineAfterSelection = [currentSelection(3) + 1, 1, currentSelection(3) + 1, Inf];
-            currentEditorPage.Selection = lineAfterSelection;
-            lineAfterText = currentEditorPage.SelectedText;
-            beforeselect = currentSelection(1);
-            while ~isequal(lineAfterSelection(1), beforeselect) && ~isempty(strtrim(lineAfterText))
-                beforeselect = lineAfterSelection(1);
-                lineAfterSelection = [lineAfterSelection(1) + 1, 1, lineAfterSelection(1) + 1, Inf];
+            % First test the last line of the selection for emptiness
+            currentEditorPage.Selection = [currentSelection(3), 1, currentSelection(3), Inf];
+            if (isempty(strtrim(currentEditorPage.SelectedText)))
+                lineAfterSelection = [currentSelection(3), 1, currentSelection(3), Inf];
+            else
+                % Otherwise look for the first empty line after
+                lineAfterSelection = [currentSelection(3) + 1, 1, currentSelection(3) + 1, Inf];
                 currentEditorPage.Selection = lineAfterSelection;
                 lineAfterText = currentEditorPage.SelectedText;
+                beforeselect = currentSelection(1);
+                while ~isequal(lineAfterSelection(1), beforeselect) && ~isempty(strtrim(lineAfterText))
+                    beforeselect = lineAfterSelection(1);
+                    lineAfterSelection = [lineAfterSelection(1) + 1, 1, lineAfterSelection(1) + 1, Inf];
+                    currentEditorPage.Selection = lineAfterSelection;
+                    lineAfterText = currentEditorPage.SelectedText;
+                end
             end
-            
+          
+           
             endReached = isequal(lineAfterSelection(1), currentSelection(1));
             expandedSelection = [expandedSelection(1), 1, lineAfterSelection(3), Inf];
             
-            if isequal(currentSelection(1), 1)
+            if isequal(expandedSelection(1), 1)
                 codeBefore = '';
             else
                 codeBeforeSelection = [1, 1, expandedSelection(1), Inf];
                 currentEditorPage.Selection = codeBeforeSelection;
-                codeBefore = currentEditorPage.SelectedText;
+                codeBefore = [currentEditorPage.SelectedText, MBeautifier.Constants.NewLine];
             end
             
             if endReached
@@ -242,10 +268,11 @@ classdef MBeautify
             % Save back the modified data then use Matlab samrt indent functionality
             % Set back the selection
             currentEditorPage.Text = [codeBefore, formattedSource, codeAfter];
-            if ~isempty(selectedPosition)
-                currentEditorPage.goToLine(selectedPosition(1));
-            end
             MBeautify.indentPage(currentEditorPage, configuration);
+            if ~isempty(selectedPosition)
+                currentEditorPage.goToPositionInLine(selectedPosition(1), selectedPosition(2));
+            end
+            currentEditorPage.Selection = expandedSelection;
             currentEditorPage.makeActive();
             
             % Save if it is possible
@@ -287,14 +314,13 @@ classdef MBeautify
             formatter = MBeautifier.MFormatter(configuration);
             currentEditorPage.Text = formatter.performFormatting(currentEditorPage.Text);
             
+            % Use Smart Indent
+            MBeautify.indentPage(currentEditorPage, configuration);
+
             % Set back the selection
             if ~isempty(selectedPosition)
-                currentEditorPage.goToLine(selectedPosition(1));
+                currentEditorPage.goToPositionInLine(selectedPosition(1), selectedPosition(2));
             end
-            
-            % Use Smart Indent
-            
-            MBeautify.indentPage(currentEditorPage, configuration);
             
             currentEditorPage.makeActive();
             
