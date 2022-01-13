@@ -836,7 +836,8 @@ classdef MFormatter < handle
 
             data = regexprep(data, '\s+;', ';');
 
-            nonUnaryOperatorArray = {'&', '&&', '|', '||', '/', './', '\', '.\', '*', '.*', ':', '^', '.^'};
+            % TODO: Bind obj.AllOperators in in a filtered manner
+            nonUnaryOperatorArray = {'&', '&&', '|', '||', '/', './', '\', '.\', '*', '.*', ':', '^', '.^', '<', '>', '==', '>=', '<=', '~='};
             nonUnaryOperatorArray1 = nonUnaryOperatorArray(cellfun(@numel, nonUnaryOperatorArray) == 1);
             nonUnaryOperatorArray2 = nonUnaryOperatorArray(cellfun(@numel, nonUnaryOperatorArray) == 2);
             operatorArray = [nonUnaryOperatorArray(:)', {'+'}, {'-'}, {'~'}];
@@ -945,6 +946,9 @@ classdef MFormatter < handle
                             elem = strtrim(elementsCell{iElem});
                             if numel(elem) && strcmp(elem(1), ',')
                                 elem = elem(2:end);
+                                if iElem > 1
+                                    elementsCell{iElem-1} = [elementsCell{iElem-1}, ','];
+                                end
                             end
                             elementsCell{iElem} = elem;
                         end
