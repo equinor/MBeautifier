@@ -100,6 +100,7 @@ classdef MFormatter < handle
 
                     replacedTextArray = [replacedTextArray, MBeautifier.Constants.NewLine];
                     continue;
+
                 else
                     if isSectionSeparator && formatSectionTrailingNewlines && (nNewLinesFound - nSectionTrailingNewlines < 0)
                         for i = 1:abs(nNewLinesFound-nSectionTrailingNewlines)
@@ -179,7 +180,7 @@ classdef MFormatter < handle
                                     if isempty(fullComment)
                                         line = actCodeFinal;
                                     else
-                                        line = [fullComment, MBeautifier.Constants.NewLine, actCodeFinal];
+                                        line = [fullComment, newLine, actCodeFinal];
                                     end
 
                                     lastComment = contLineArray{end, 2};
@@ -201,15 +202,15 @@ classdef MFormatter < handle
                                         token = actCodeFinal(startIndices(iMatch):endIndices(iMatch));
                                         lastEndIndex = endIndices(iMatch);
                                         if linesAreMathing
-                                            line = [line, partBefore, [' ', contTokenStruct.StoredValue, ' '], contLineArray{iMatch, 2}, MBeautifier.Constants.NewLine];
+                                            line = [line, partBefore, [' ', contTokenStruct.StoredValue, ' '], contLineArray{iMatch, 2}, newLine];
                                         else
-                                            line = [line, partBefore, [' ', contTokenStruct.StoredValue, ' '], MBeautifier.Constants.NewLine];
+                                            line = [line, partBefore, [' ', contTokenStruct.StoredValue, ' '], newLine];
                                         end
                                     end
                                     if ~linesAreMathing
                                         fullComment = obj.buildContinousLineCommentAsPrecedingLines(contLineArray);
                                         if ~isempty(fullComment)
-                                            line = [fullComment, MBeautifier.Constants.NewLine, line];
+                                            line = [fullComment, newLine, line];
                                         end
                                     end
 
@@ -219,7 +220,7 @@ classdef MFormatter < handle
                                         if ~strcmpi(trimmedPrevComment(1), '%')
                                             trimmedPrevComment = ['% ', trimmedPrevComment];
                                         end
-                                        line = [trimmedPrevComment, MBeautifier.Constants.NewLine, line];
+                                        line = [trimmedPrevComment, newLine, line];
                                     end
                                 end
                             else
